@@ -8,8 +8,8 @@ use net::dev::nh_dev;
 use net::arp::nh_arp;
 use Getopt::Std;
 
-use vars qw($opt_t $opt_s $opt_i $opt_L $opt_V $opt_H);
-&getopts('t:s:i:HVL');
+use vars qw($opt_t $opt_i $opt_d $opt_r $opt_L $opt_V $opt_H);
+&getopts('t:s:i:d:r:HVL');
 
 my $net_hounds_name = "Net_Hounds";
 
@@ -21,6 +21,8 @@ my %nh_action_proc = (
 sub usage {
     print ("usage: $0 -t [interval of send ARP packet]\n");
     print ("\t\t\t\t-i [interface of network]\n");
+    print ("\t\t\t\t-d [dest ip address1]\n");
+    print ("\t\t\t\t-r [dest ip address2]\n");
     print ("\t\t\t\t-L (list all actions)\n");
     print ("\t\t\t\t-V (version)\n");
     print ("\t\t\t\t-H (help)\n");
@@ -63,5 +65,17 @@ if (! &nh_array_exist($interface, \@devs)) {
     exit(1);
 }
 
-my $ret = &nh_arp_spoof($interval, $interface);
+my $dest1 = $opt_d;
+if (!$dest1) {
+    print("Please input dest1 ip with -d\n");
+    exit(1);
+}
+
+my $dest2 = $opt_r;
+if (!$dest2) {
+    print("Please input dest2 ip with -r\n");
+    exit(1);
+}
+
+my $ret = &nh_arp_spoof($interval, $interface, $dest1, $dest2);
 exit($ret);
