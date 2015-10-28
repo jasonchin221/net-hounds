@@ -15,7 +15,7 @@ sub nh_netdev_list {
     my @file_array;
     my @sp;
 
-    tie(@file_array,'Tie::File', $nh_proc_dev) or die("Tile $nh_proc_dev failed!\n");
+    tie(@file_array,'Tie::File', $nh_proc_dev) or die("Open $nh_proc_dev failed!\n");
     foreach my $l (@file_array) {
         if ($l =~ /:/) {
             @sp = split(/:/, $l);
