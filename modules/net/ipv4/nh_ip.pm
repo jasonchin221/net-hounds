@@ -1,4 +1,4 @@
-package net::ip::nh_ip;
+package net::ipv4::nh_ip;
 require Exporter;
 require 'sys/ioctl.ph';
 use Socket;

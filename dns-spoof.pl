@@ -5,19 +5,18 @@ use warnings;
 use lib 'modules';
 use nh_common;
 use net::dev::nh_dev;
-use net::arp::nh_arp;
+use net::dns::nh_dns;
 use Getopt::Std;
 
-use vars qw($opt_t $opt_i $opt_d $opt_r $opt_V $opt_H);
-&getopts('t:s:i:d:r:HV');
+use vars qw($opt_i $opt_d $opt_g $opt_V $opt_H);
+&getopts('i:d:g:HV');
 
 my $net_hounds_name = "Net_Hounds";
 
 sub usage {
-    print ("usage: $0 -t [interval of send ARP packet]\n");
-    print ("\t\t\t\t-i [interface of network]\n");
-    print ("\t\t\t\t-d [dest ip address1]\n");
-    print ("\t\t\t\t-r [dest ip address2]\n");
+    print ("usage: $0 -i [interface of network]\n");
+    print ("\t\t\t\t-d [dest ip address]\n");
+    print ("\t\t\t\t-g [gateway ip address]\n");
     print ("\t\t\t\t-V (version)\n");
     print ("\t\t\t\t-H (help)\n");
 }
@@ -36,10 +35,6 @@ if ($opt_V) {
     exit(0);
 }
 
-my $interval = $opt_t;
-if (! $interval || $interval <= 0) {
-    $interval = 1;
-}
 my $interface = $opt_i;
 if (!$interface) {
     print("Please input interface name with -i\n");
@@ -52,17 +47,17 @@ if (! &nh_array_exist($interface, \@devs)) {
     exit(1);
 }
 
-my $dest1 = $opt_d;
-if (!$dest1) {
-    print("Please input dest1 ip with -d\n");
+my $dest = $opt_d;
+if (!$dest) {
+    print("Please input dest ip with -d\n");
     exit(1);
 }
 
-my $dest2 = $opt_r;
-if (!$dest2) {
-    print("Please input dest2 ip with -r\n");
+my $gw = $opt_g;
+if (!$gw) {
+    print("Please input gateway ip with -g\n");
     exit(1);
 }
 
-my $ret = &nh_arp_spoof($interval, $interface, $dest1, $dest2);
+my $ret = &nh_dns_spoof($interface, $dest, $gw);
 exit($ret);
