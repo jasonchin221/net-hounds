@@ -1,13 +1,16 @@
-package net::mac::nh_mac;
+package net::ethernet::nh_eth;
 use net::packet::nh_packet;
 require Exporter;
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
-                nh_mac_packet_send
+                nh_eth_packet_send
+                $nh_eth_id 
              );
 
-sub nh_mac_packet_send {
+$nh_eth_id = "0001";             
+
+sub nh_eth_packet_send {
     my $if = shift(@_);
     my $dmac = shift(@_);
     my $smac = shift(@_);

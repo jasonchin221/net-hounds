@@ -1,6 +1,7 @@
 package net::arp::nh_arp;
 use Net::ARP;
 use net::ipv4::nh_ip;
+use net::ethernet::nh_eth;
 require Exporter;
 
 @ISA = qw(Exporter);
@@ -8,9 +9,31 @@ require Exporter;
                 nh_arp_spoof nh_arp_update_cache nh_arp_hijack 
              );
 
+my $nh_arp_proto = "0806";
+my $nh_arp_hardware_size = "06";
+my $nh_arp_proto_size = "04";
 my $nh_arp_request = "request";           
 my $nh_arp_reply = "reply";           
 my $nh_arp_request_broadcast = "FF:FF:FF:FF:FF:FF";
+my $nh_arp_request_dmac = "000000000000";
+
+my %nh_arp_op_code = (
+    $nh_arp_request => "0001",
+    $nh_arp_reply => "0002",
+);
+
+sub nh_arp_send {
+    my $if = shift(@_);
+    my $dmac = shift(@_);
+    my $smac = shift(@_);
+    my $dip = shift(@_);
+    my $sip = shift(@_);
+    my $ipproto = shift(@_);
+    my $eth = $nh_eth_id; 
+    my $data = "0001080006040001003018cc8970c0a8016400000000c0a80101";
+
+    &nh_eth_packet_send($if, $dmac, $smac, $nh_arp_proto, $data);
+}
 
 sub nh_arp_send_reply {
     my $if = shift(@_);
