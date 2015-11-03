@@ -15,10 +15,15 @@ my $dst_port_key = "dest_port";
 
 sub nh_ma_udp_callback {
         my ($npe, $ether, $ip, $udp, $header ) = @_;
+        my $str;
  
         print "UDP $ip->{src_ip}:$udp->{src_port}"
          . " -> $ip->{dest_ip}:$udp->{dest_port}\n";
  
+         my $length = length($udp->{data});
+         $str = unpack("H2", $udp->{data});
+         print("UDP->length = $length\n");
+         print("UDP->data = $str\n");
         print "\t$ether->{src_mac} -> $ether->{dest_mac}\n";
 }
 

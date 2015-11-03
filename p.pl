@@ -3,10 +3,13 @@
 use strict;
 use warnings;
 use lib 'modules';
-use net::packet::nh_packet;
+use net::mac::nh_mac;
 use Getopt::Std;
 
-my $arp_request="ff ff ff ff ff ff 00 30 18 cc 89 70 08 06 00 01 08 00 06 04 00 01 00 30 18 cc 89 70 c0 a8 01 64 00 00 00 00 c0 a8 01 01";
-$arp_request = unpack("a*",$arp_request);
-$arp_request = pack("H*",$arp_request);
-nh_packet_send("lo", $arp_request); 
+my $if = "vmnet1";
+my $dmac = "ffffffffffff";
+my $smac = "003018cc8970";
+my $proto = "0806";
+my $data = "0001080006040001003018cc8970c0a8016400000000c0a80101";
+
+&nh_mac_packet_send($if, $dmac, $smac, $proto, $data);
