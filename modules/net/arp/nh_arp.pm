@@ -86,19 +86,8 @@ sub nh_arp_send_reply {
     my $dip1 = shift(@_);
     my $dip2 = shift(@_);
 
-    Net::ARP::send_packet($if,          # Device
-        $dip1,                          # Source IP
-        $dip2,                          # Destination IP
-        $smac,                          # Source MAC
-        $dmac2,                         # Destinaton MAC
-        $nh_arp_reply);                 # ARP operation
-
-    Net::ARP::send_packet($if,
-        $dip2,
-        $dip1,
-        $smac, 
-        $dmac1,
-        $nh_arp_reply); 
+    nh_arp_reply_send($if, $dmac2, $smac, $dip1, $dip2, $nh_ipv4_id);
+    nh_arp_reply_send($if, $dmac1, $smac, $dip2, $dip1, $nh_ipv4_id);
 }            
 
 sub nh_arp_update_cache {
