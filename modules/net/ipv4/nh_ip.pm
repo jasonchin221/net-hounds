@@ -6,7 +6,10 @@ use Socket;
 @ISA = qw(Exporter);
 @EXPORT = qw(
                 nh_ip_get 
+                $nh_ipv4_id 
              );
+
+$nh_ipv4_id = "0800";
 
 sub nh_get_ip_address($) {
     my $pack = pack("a*", shift);

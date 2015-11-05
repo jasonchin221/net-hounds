@@ -1,11 +1,12 @@
 package nh_common;
 require Exporter;
+use Socket;
 use Tie::File;
 use Cwd;
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
-                nh_array_exist nh_remove_space_front_back 
+                nh_array_exist nh_remove_space_front_back nh_inet_aton 
                 $nh_arp_spoof_name 
              );
 
@@ -35,5 +36,8 @@ sub nh_remove_space_front_back {
     return $str;
 }
 
+sub nh_inet_aton {
+    return &inet_aton(@_);
+}
 
 1;

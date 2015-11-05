@@ -1,4 +1,5 @@
 package net::arp::nh_arp;
+use nh_common;
 use Net::ARP;
 use net::ipv4::nh_ip;
 use net::ethernet::nh_eth;
@@ -7,6 +8,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(
                 nh_arp_spoof nh_arp_update_cache nh_arp_hijack 
+                nh_arp_request_send nh_arp_reply_send 
              );
 
 my $nh_arp_proto = "0806";
@@ -29,10 +31,51 @@ sub nh_arp_send {
     my $dip = shift(@_);
     my $sip = shift(@_);
     my $ipproto = shift(@_);
+    my $arp_op = shift(@_);
     my $eth = $nh_eth_id; 
-    my $data = "0001080006040001003018cc8970c0a8016400000000c0a80101";
+    my $target_mac;
+    my $data;
+
+    $dmac =~ s/://g;
+    $smac =~ s/://g;
+    if ($arp_op eq $nh_arp_request) {
+        $target_mac = $nh_arp_request_dmac;
+    } else {
+        $target_mac = $dmac;
+    }
+    $dip = &nh_inet_aton($dip);
+    $dip = unpack("H*", $dip);
+    $sip = &nh_inet_aton($sip);
+    $sip = unpack("H*", $sip);
+
+    $data = $nh_eth_id.$ipproto.$nh_arp_hardware_size.$nh_arp_proto_size;
+    $data .= $nh_arp_op_code{$arp_op}.$smac.$sip.$target_mac.$dip;
 
     &nh_eth_packet_send($if, $dmac, $smac, $nh_arp_proto, $data);
+}
+
+sub nh_arp_request_send {
+    my $if = shift(@_);
+    my $dmac = shift(@_);
+    my $smac = shift(@_);
+    my $dip = shift(@_);
+    my $sip = shift(@_);
+    my $ipproto = shift(@_);
+ 
+    return &nh_arp_send($if, $dmac, $smac, $dip, $sip,
+            $ipproto, $nh_arp_request); 
+}
+
+sub nh_arp_reply_send {
+    my $if = shift(@_);
+    my $dmac = shift(@_);
+    my $smac = shift(@_);
+    my $dip = shift(@_);
+    my $sip = shift(@_);
+    my $ipproto = shift(@_);
+ 
+    return &nh_arp_send($if, $dmac, $smac, $dip, $sip,
+            $ipproto, $nh_arp_reply); 
 }
 
 sub nh_arp_send_reply {
